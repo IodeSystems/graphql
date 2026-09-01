@@ -14,7 +14,8 @@ Work flows both ways. Upstream merged this fork's query-plan cache ([#740](https
 
 What this fork adds on top of upstream today:
 
-- **Resolver-side append API** (`Field.ResolveAppend`, `ExecutePlanAppend`, `ScalarConfig.AppendJSON`) — opt-in zero-boxing JSON emission, ~3.7× faster than the map-tree path. Opt-in because it requires schema-author changes.
+- **Byte-path request entry points** (`DoWriter`, `DoAppend`) — write the response body straight to an `io.Writer` or your own buffer, skipping the `map[string]interface{}` result tree and the marshal pass `Do` requires. **No schema changes**: built-in scalars emit natively, custom scalars fall back automatically, introspection routes to the slow path on its own. End-to-end on a 100-field query, no plan cache: **1.52× faster, 2.4× less memory, 36% fewer allocations** than `Do` + `json.Marshal`. Against the executor alone (cached plan) the append walker is **3.8×** with 87× less garbage. Servers should default to `DoWriter`; `Do` remains for callers that want a Go value to inspect or filter.
+- **Resolver-side append API** (`Field.ResolveAppend`, `ScalarConfig.AppendJSON`) — a further ~1.55× on top of the above, and the only part that asks anything of schema authors: a `ResolveAppend` resolver emits its own JSON bytes and the executor does not inspect them. Experimental; the signature may change before this fork's 1.0.
 - **Substantial parser and executor perf work** — parser geomean 2.25× faster with 91% fewer allocations. See the Performance section below.
 - **Pooled resolver arguments** and assorted execution-path tuning, applied transparently.
 

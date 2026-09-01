@@ -1,7 +1,9 @@
 package graphql_test
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"testing"
 
 	"github.com/IodeSystems/graphql-go"
@@ -600,6 +602,42 @@ func BenchmarkPlanQuery_Wide_100(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if _, err := graphql.PlanQuery(&schema, doc, ""); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkDoMarshal_Wide_100 and BenchmarkDoWriter_Wide_100 compare
+// the two full-request entry points on the same schema and query:
+// what a server does today (Do, then marshal the *Result) against the
+// byte path (DoWriter). Both parse, validate, plan and execute every
+// call — no plan cache — so this is the honest end-to-end shape, not
+// the executor in isolation.
+func BenchmarkDoMarshal_Wide_100(b *testing.B) {
+	schema := benchutil.WideSchemaWithXFieldsAndYItems(100, 10)
+	query := benchutil.WideSchemaQuery(100)
+	p := graphql.Params{Schema: schema, RequestString: query}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		out, err := json.Marshal(graphql.Do(p))
+		if err != nil {
+			b.Fatal(err)
+		}
+		_ = out
+	}
+}
+
+func BenchmarkDoWriter_Wide_100(b *testing.B) {
+	schema := benchutil.WideSchemaWithXFieldsAndYItems(100, 10)
+	query := benchutil.WideSchemaQuery(100)
+	p := graphql.Params{Schema: schema, RequestString: query}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := graphql.DoWriter(p, io.Discard); err != nil {
 			b.Fatal(err)
 		}
 	}
