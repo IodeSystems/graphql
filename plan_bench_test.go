@@ -578,3 +578,29 @@ func BenchmarkPlannedAppend_DefaultResolve_Struct50(b *testing.B) {
 		buf = out
 	}
 }
+
+// BenchmarkPlanQuery_Wide_100 times PlanQuery itself on a wide
+// selection set. The PlannedExecute_* benchmarks above build their plan
+// once outside the timed loop, so nothing here measured plan-time
+// allocation until this existed; PlanQueryAbstractFan is deep rather
+// than wide (two fields per selection set), so it could not see
+// per-field costs either. That blind spot is why the response-key
+// encoding allocated once per field for three months unnoticed.
+func BenchmarkPlanQuery_Wide_100(b *testing.B) {
+	schema := benchutil.WideSchemaWithXFieldsAndYItems(100, 10)
+	query := benchutil.WideSchemaQuery(100)
+
+	src := source.NewSource(&source.Source{Body: []byte(query), Name: "bench"})
+	doc, err := parser.Parse(parser.ParseParams{Source: src})
+	if err != nil {
+		b.Fatalf("parse: %v", err)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err := graphql.PlanQuery(&schema, doc, ""); err != nil {
+			b.Fatal(err)
+		}
+	}
+}

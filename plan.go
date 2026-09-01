@@ -218,6 +218,7 @@ func (p *Plan) planSelectionSet(parentType *Object, selectionSet *ast.SelectionS
 	if len(sp.fields) == 0 {
 		return nil
 	}
+	fillResponseKeyJSON(sp)
 	// Phase 2: plan sub-selections for each merged field group.
 	for _, fp := range sp.fields {
 		if fp.fieldDef == nil {
@@ -286,6 +287,7 @@ func (p *Plan) planMergedSelectionsForType(parentType *Object, fieldASTs []*ast.
 	if len(sp.fields) == 0 {
 		return nil
 	}
+	fillResponseKeyJSON(sp)
 	for _, fp := range sp.fields {
 		if fp.fieldDef == nil {
 			continue
@@ -340,12 +342,11 @@ func (p *Plan) collectInto(parentType *Object, selectionSet *ast.SelectionSet, v
 				// hasNoFieldDefs branch (skip the response key).
 			}
 			fp := &fieldPlan{
-				responseKey:     responseKey,
-				responseKeyJSON: encodeResponseKeyJSON(responseKey),
-				fieldName:       fieldName,
-				fieldDef:        fieldDef,
-				fieldASTs:       []*ast.Field{sel},
-				skipPredicate:   andPredicates(parentPred, pred),
+				responseKey:   responseKey,
+				fieldName:     fieldName,
+				fieldDef:      fieldDef,
+				fieldASTs:     []*ast.Field{sel},
+				skipPredicate: andPredicates(parentPred, pred),
 			}
 			if fieldDef != nil {
 				fp.returnType = fieldDef.Type
@@ -432,15 +433,31 @@ func unwrapNamedType(t Output) Output {
 	}
 }
 
-// encodeResponseKeyJSON pre-builds the JSON object-key bytes for a
-// response key — `"key":` ready to drop between fields. Field names
-// are spec-validated identifiers (`/[_A-Za-z][_0-9A-Za-z]*/`), but
-// aliases are arbitrary strings, so we route through the full JSON
+// fillResponseKeyJSON pre-builds the JSON object keys (`"key":`) for
+// every field in sp, as slices of ONE backing array.
+//
+// These bytes are read only by the append-mode walkers. Building them
+// per field cost one allocation per field on every plan, paid by
+// ExecutePlan and Execute callers who never look at them; a slab makes
+// it one allocation per selection set instead.
+//
+// The slab is sized exactly by jsonStringEncodedLen, so the append
+// calls below cannot grow it and invalidate slices already handed out.
+// Field names are spec-validated identifiers, but aliases are
+// arbitrary strings, so the bytes still route through the full JSON
 // string escaper.
-func encodeResponseKeyJSON(responseKey string) []byte {
-	out := make([]byte, 0, len(responseKey)+3)
-	out = appendJSONString(out, responseKey)
-	return append(out, ':')
+func fillResponseKeyJSON(sp *selectionPlan) {
+	total := 0
+	for _, fp := range sp.fields {
+		total += jsonStringEncodedLen(fp.responseKey) + 1 // + ':'
+	}
+	slab := make([]byte, 0, total)
+	for _, fp := range sp.fields {
+		start := len(slab)
+		slab = appendJSONString(slab, fp.responseKey)
+		slab = append(slab, ':')
+		fp.responseKeyJSON = slab[start:len(slab):len(slab)]
+	}
 }
 
 // pickLeafEmitter inspects the unwrapped leaf type of a return type

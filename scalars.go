@@ -764,22 +764,55 @@ func appendJSONString(dst []byte, s string) []byte {
 	return append(dst, '"')
 }
 
+// jsonStringEncodedLen returns exactly len(appendJSONString(nil, s)) —
+// the encoded byte count including both quotes — without allocating.
+// It mirrors appendJSONString's branches one for one; the two are
+// pinned together by TestJSONStringEncodedLenMatchesAppend, because a
+// drift here would silently under-size a caller's buffer.
+func jsonStringEncodedLen(s string) int {
+	n := 2 // the enclosing quotes
+	for i := 0; i < len(s); {
+		c := s[i]
+		if c < 0x80 {
+			switch {
+			case jsonSafeSet[c]:
+				n++
+			case c == '"' || c == '\\' || c == '\n' || c == '\r' ||
+				c == '\t' || c == '\b' || c == '\f':
+				n += 2
+			default:
+				n += 6 // \u00XX
+			}
+			i++
+			continue
+		}
+		if c == 0xE2 && i+2 < len(s) && s[i+1] == 0x80 && (s[i+2] == 0xA8 || s[i+2] == 0xA9) {
+			n += 6 // \u2028 / \u2029
+			i += 3
+			continue
+		}
+		n++
+		i++
+	}
+	return n
+}
+
 // jsonSafeSet[c] is true when byte c may appear unescaped inside a
 // JSON string under HTML-safe encoding (matches encoding/json's
 // htmlSafeSet).
 var jsonSafeSet = [128]bool{
-	' ': true, '!': true, /* '"' escaped */ '#': true, '$': true, '%': true,
+	' ': true, '!': true /* '"' escaped */, '#': true, '$': true, '%': true,
 	/* '&' escaped */ '\'': true, '(': true, ')': true, '*': true, '+': true,
 	',': true, '-': true, '.': true, '/': true,
 	'0': true, '1': true, '2': true, '3': true, '4': true,
 	'5': true, '6': true, '7': true, '8': true, '9': true,
-	':': true, ';': true, /* '<' escaped */ '=': true, /* '>' escaped */
+	':': true, ';': true /* '<' escaped */, '=': true, /* '>' escaped */
 	'?': true, '@': true,
 	'A': true, 'B': true, 'C': true, 'D': true, 'E': true, 'F': true, 'G': true,
 	'H': true, 'I': true, 'J': true, 'K': true, 'L': true, 'M': true, 'N': true,
 	'O': true, 'P': true, 'Q': true, 'R': true, 'S': true, 'T': true, 'U': true,
 	'V': true, 'W': true, 'X': true, 'Y': true, 'Z': true,
-	'[': true, /* '\\' escaped */ ']': true, '^': true, '_': true, '`': true,
+	'[': true /* '\\' escaped */, ']': true, '^': true, '_': true, '`': true,
 	'a': true, 'b': true, 'c': true, 'd': true, 'e': true, 'f': true, 'g': true,
 	'h': true, 'i': true, 'j': true, 'k': true, 'l': true, 'm': true, 'n': true,
 	'o': true, 'p': true, 'q': true, 'r': true, 's': true, 't': true, 'u': true,
