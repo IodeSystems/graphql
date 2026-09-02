@@ -23,18 +23,6 @@ type ExecuteParams struct {
 	// information to resolve functions.
 	Context context.Context
 
-	// ConcurrentThunks restores the thunk-concurrency contract under
-	// the append-mode executor by delegating to ExecutePlan +
-	// json.Marshal: thunked resolvers (`func() (interface{}, error)`)
-	// run with breadth-first dethunking so their internal goroutines
-	// overlap. The default — false — dethunks synchronously as
-	// resolvers return, which is correct for thunks that only defer
-	// work (no concurrency) but loses the documented parallelism
-	// pattern (see examples/concurrent-resolvers). Set true when the
-	// schema's thunks kick off goroutines and rely on the dethunk
-	// pass for parallel execution. Has no effect on ExecutePlan.
-	ConcurrentThunks bool
-
 	// RetainArgs disables the args-map pool that the executor uses
 	// to recycle ResolveParams.Args across resolver calls. The
 	// default — false — acquires the args map from a sync.Pool and

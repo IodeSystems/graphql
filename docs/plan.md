@@ -402,7 +402,15 @@ gains and the reclaimed allocs to restore the `info.Path` contract.
   capacity). Could be pooled via `sync.Pool` for a tiny additional
   win; tracked in the investigation backlog.
 
-### Phase 5 — Concurrent thunks (default-eager; `ConcurrentThunks` opt-out)
+### Phase 5 — Concurrent thunks (superseded)
+
+> **Superseded.** `ConcurrentThunks` was removed. The append walker now
+> resolves every field in a selection set before awaiting any thunk,
+> which is the ordering that gave `ExecutePlan` its parallelism, so the
+> opt-out has nothing left to restore — it only routed to
+> `ExecutePlan` + `json.Marshal` + a copy, strictly slower than `Do`.
+> See the two-phase note in `plan_twophase.go`. Original plan below.
+
 
 **Done.**
 - [x] **`ExecuteParams.ConcurrentThunks bool`** routes
@@ -663,9 +671,9 @@ perf docs.
 | `plan.go` | 4 | Branch on `eCtx.lazyPath` at `writePlannedField` + `writeCompleteListValue` push sites; thread `pathEntry` through `recoverPlannedField` / `recoverCompleteValue` for the unwind. | landed; branch removed by 682320e, the push sites are now unconditional |
 | `plan_append_test.go` | 4 | `runParity` cross-runs `PreserveInfoPath=true`; dedicated tests pin `info.Path` contract and error-location parity. | landed; cross-run and `info.Path` tests dropped with 682320e, error-location parity retained |
 | `plan_bench_test.go` | 4 | `BenchmarkPlannedAppendEager_*` siblings (PreserveInfoPath=true) measure opt-out cost. | landed; removed by 682320e with the flag |
-| `executor.go` | 5 | Add `ExecuteParams.ConcurrentThunks` (opt-out). | landed |
+| `executor.go` | 5 | Add `ExecuteParams.ConcurrentThunks` (opt-out). | reverted — superseded by two-phase resolution |
 | `plan.go` | 5 | `executePlanAppendViaResult` delegate that runs `ExecutePlan` + `json.Marshal` when the caller opts back into the breadth-first dethunk pass. | landed |
-| `plan_append_test.go` | 5 | `TestAppendConcurrentThunks` exercises the thunk path and cross-checks default-mode (eager) parity. | landed |
+| `plan_append_test.go` | 5 | `TestAppendThunkedResolvers` checks thunk values against the map executor; `BenchmarkThunks20_DoWriter` guards the concurrency. | landed |
 | `executor.go` | 6 | Add `ExecuteParams.RetainArgs` (opt-out) + `executionContext.poolArgs`; package-level `argsMapPool` + `acquireArgsMap` / `releaseArgsMap` helpers. | landed |
 | `values.go` | 6 | Extract `populateArgumentValues(dst, ...)` from `getArgumentValues`; drop the per-call `argASTMap` for a linear lookup. | landed |
 | `plan.go` | 6 | `writePlannedField` acquires from `argsMapPool` and `defer`-releases (append walker only — ExecutePlan's thunks defeat pooling). | landed |

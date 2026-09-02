@@ -1104,19 +1104,14 @@ func completePlannedAbstractValue(eCtx *executionContext, returnType Abstract, f
 // Field-level errors are written into the response bytes via the
 // `errors` array.
 //
-// The walker dethunks resolver thunks eagerly. Schemas whose thunks
-// kick off goroutines and rely on the documented breadth-first
-// dethunk pass for concurrency should set ExecuteParams.ConcurrentThunks
-// — that routes through ExecutePlan + json.Marshal, restoring the
-// concurrent dethunk contract at the cost of the append-mode speed
-// wins. Mutations run serially in source order regardless, which
+// Thunk concurrency is preserved: every resolver in a selection set is
+// called — each starting its goroutine — before any thunk is awaited,
+// which is the same ordering ExecutePlan's breadth-first dethunk pass
+// provides. Mutations run serially in source order regardless, which
 // matches the spec's mutation ordering.
 func ExecutePlanAppend(plan *Plan, p ExecuteParams, dst []byte) ([]byte, []gqlerrors.FormattedError) {
 	if plan == nil {
 		return dst, gqlerrors.FormatErrors(errors.New("graphql: ExecutePlanAppend: plan is nil"))
-	}
-	if p.ConcurrentThunks {
-		return executePlanAppendViaResult(plan, p, dst)
 	}
 	ctx := p.Context
 	if ctx == nil {
@@ -1167,42 +1162,6 @@ func ExecutePlanAppend(plan *Plan, p ExecuteParams, dst []byte) ([]byte, []gqler
 		if marshalErr != nil {
 			dst = append(dst, "[]"...)
 		} else {
-			dst = append(dst, errs...)
-		}
-	}
-	dst = append(dst, '}')
-	return dst, nil
-}
-
-// executePlanAppendViaResult handles the ExecuteParams.ConcurrentThunks
-// opt-out: ExecutePlan owns the resolve + breadth-first-dethunk dance
-// (so thunked resolvers get their documented concurrency back), and
-// json.Marshal serialises the assembled map tree into dst.
-//
-// Trade-off vs. the native append walker: gives up the leaf-emitter
-// fast path, the responseKeyJSON pre-encoding, the no-map-tree win,
-// and the byte-level streaming — i.e. all of Phases 1–3. Use only
-// when the schema relies on thunk-based concurrency. The returned
-// spec-error slice is empty under this path; envelope-level errors
-// (including variable-coercion failures) live inside the emitted
-// `"errors"` array, since ExecutePlan merges all error categories
-// into Result.Errors.
-func executePlanAppendViaResult(plan *Plan, p ExecuteParams, dst []byte) ([]byte, []gqlerrors.FormattedError) {
-	result := ExecutePlan(plan, p)
-	dst = append(dst, `{"data":`...)
-	if result.Data == nil {
-		dst = append(dst, "null"...)
-	} else {
-		data, err := json.Marshal(result.Data)
-		if err != nil {
-			return dst, []gqlerrors.FormattedError{gqlerrors.FormatError(err)}
-		}
-		dst = append(dst, data...)
-	}
-	if len(result.Errors) > 0 {
-		errs, err := json.Marshal(result.Errors)
-		if err == nil {
-			dst = append(dst, `,"errors":`...)
 			dst = append(dst, errs...)
 		}
 	}

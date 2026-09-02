@@ -86,11 +86,11 @@ func TestAppendParity_Scalars(t *testing.T) {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "Q",
 			Fields: graphql.Fields{
-				"i": &graphql.Field{Type: graphql.Int, Resolve: func(graphql.ResolveParams) (interface{}, error) { return 42, nil }},
-				"f": &graphql.Field{Type: graphql.Float, Resolve: func(graphql.ResolveParams) (interface{}, error) { return 3.14, nil }},
-				"s": &graphql.Field{Type: graphql.String, Resolve: func(graphql.ResolveParams) (interface{}, error) { return "hi \"world\"\n<tag>&", nil }},
-				"b": &graphql.Field{Type: graphql.Boolean, Resolve: func(graphql.ResolveParams) (interface{}, error) { return true, nil }},
-				"id": &graphql.Field{Type: graphql.ID, Resolve: func(graphql.ResolveParams) (interface{}, error) { return "abc-123", nil }},
+				"i":     &graphql.Field{Type: graphql.Int, Resolve: func(graphql.ResolveParams) (interface{}, error) { return 42, nil }},
+				"f":     &graphql.Field{Type: graphql.Float, Resolve: func(graphql.ResolveParams) (interface{}, error) { return 3.14, nil }},
+				"s":     &graphql.Field{Type: graphql.String, Resolve: func(graphql.ResolveParams) (interface{}, error) { return "hi \"world\"\n<tag>&", nil }},
+				"b":     &graphql.Field{Type: graphql.Boolean, Resolve: func(graphql.ResolveParams) (interface{}, error) { return true, nil }},
+				"id":    &graphql.Field{Type: graphql.ID, Resolve: func(graphql.ResolveParams) (interface{}, error) { return "abc-123", nil }},
 				"sNull": &graphql.Field{Type: graphql.String, Resolve: func(graphql.ResolveParams) (interface{}, error) { return nil, nil }},
 			},
 		}),
@@ -758,11 +758,11 @@ func TestAppendArgsPool_NonNilArgs(t *testing.T) {
 	}
 }
 
-// TestAppendConcurrentThunks confirms ExecuteParams.ConcurrentThunks
-// routes through ExecutePlan + json.Marshal so thunked resolvers
-// retain their concurrency contract. Default (ConcurrentThunks=false)
-// dethunks eagerly — correct value, no parallelism.
-func TestAppendConcurrentThunks(t *testing.T) {
+// Thunked resolvers must produce the same values under the append
+// walker as under the map-tree one. Concurrency itself is covered by
+// BenchmarkThunks20_DoWriter; this is the value check, including a
+// thunk that hands off through a goroutine.
+func TestAppendThunkedResolvers(t *testing.T) {
 	fooType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Foo",
 		Fields: graphql.Fields{
@@ -808,9 +808,8 @@ func TestAppendConcurrentThunks(t *testing.T) {
 	plan, _ := graphql.PlanQuery(&schema, doc, "")
 
 	got, specErrs := graphql.ExecutePlanAppend(plan, graphql.ExecuteParams{
-		Schema:           schema,
-		AST:              doc,
-		ConcurrentThunks: true,
+		Schema: schema,
+		AST:    doc,
 	}, nil)
 	if len(specErrs) > 0 {
 		t.Fatalf("spec errors: %v", specErrs)
@@ -829,17 +828,17 @@ func TestAppendConcurrentThunks(t *testing.T) {
 		t.Fatalf("bar.name = %v; want %q", bar["name"], "Bar's name")
 	}
 
-	// Default (ConcurrentThunks=false) also produces correct values —
-	// just synchronously. Cross-check.
-	got2, specErrs := graphql.ExecutePlanAppend(plan, graphql.ExecuteParams{Schema: schema, AST: doc}, nil)
-	if len(specErrs) > 0 {
-		t.Fatalf("default spec errors: %v", specErrs)
+	// Cross-check against the map-tree executor.
+	mapResult := graphql.ExecutePlan(plan, graphql.ExecuteParams{Schema: schema, AST: doc})
+	got2, err := json.Marshal(envelope(mapResult))
+	if err != nil {
+		t.Fatalf("marshal map result: %v", err)
 	}
 	var decoded2 map[string]interface{}
 	if err := json.Unmarshal(got2, &decoded2); err != nil {
-		t.Fatalf("default decode: %v\nbytes: %s", err, got2)
+		t.Fatalf("map decode: %v\nbytes: %s", err, got2)
 	}
 	if !reflect.DeepEqual(decoded, decoded2) {
-		t.Fatalf("thunk parity:\n  ConcurrentThunks: %s\n  default:          %s", got, got2)
+		t.Fatalf("thunk parity:\n  append: %s\n  map:    %s", got, got2)
 	}
 }

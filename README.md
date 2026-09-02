@@ -25,12 +25,11 @@ Source-compatible except for one API removal, plus two defaults that change beha
 
 **Removed:** `ResolveInfo.Path` and the `ResponsePath` type. Responses are unaffected — `errors[].path` is still populated — so the only thing that stops compiling is a resolver reading `info.Path`.
 
-**Changed defaults.** Both are `ExecuteParams` flags, and setting either restores upstream behavior:
+**Changed default.** `RetainArgs` is an `ExecuteParams` flag; setting it restores upstream behavior:
 
 | Flag | Default | Difference from upstream |
 |---|---|---|
 | `RetainArgs` | `false` | `ResolveParams.Args` is pooled and reused across resolver calls. Read `p.Args` freely, but do not retain it past the call — in a struct field, channel, or goroutine. Set `true` if you do: there is no compile error and no panic, just wrong data. |
-| `ConcurrentThunks` | `false` | Resolver-returned thunks are dethunked as they return rather than breadth-first. Thunks that only defer work are unaffected; thunks that start goroutines and rely on the dethunk pass for parallelism (upstream's `examples/concurrent-resolvers` pattern) lose it. |
 
 Two further differences need no opt-in and should only ever return more data, never less: introspection returns `__schema.types` and `__type.fields` in sorted order (upstream's ordering is map-random), and `DefaultResolveFn` resolves fields promoted from embedded structs following Go's own promotion rules (upstream returns null for them).
 

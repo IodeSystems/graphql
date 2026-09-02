@@ -39,9 +39,16 @@ const maxPooledResponseBuf = 1 << 20
 // errors want Do.
 //
 // Nothing is written until the body is complete, so w never sees a
-// partial response: append-mode implements null bubble-up by rolling
-// the buffer back to a saved length, which requires the whole body in
-// memory. One Write call, always.
+// partial response — one Write call, always.
+//
+// That is an implementation choice, not a property of GraphQL. Null
+// propagation is retroactive: a non-null field failing turns its
+// nearest nullable ancestor into null, so no subtree can be committed
+// until it finishes. This walker handles that by rolling one buffer
+// back to a saved offset, which means holding the whole body. A
+// streaming version could flush each nullable subtree as it completes,
+// but only for schemas selecting no non-null root field, since an
+// unabsorbed bubble replaces the entire data value with null.
 func DoWriter(p Params, w io.Writer) error {
 	bufp := responseBufPool.Get().(*[]byte)
 	buf := DoAppend(p, (*bufp)[:0])
