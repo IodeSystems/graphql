@@ -3,7 +3,7 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/IodeSystems/graphql-go/language/ast"
+	"github.com/IodeSystems/graphql-go/v2/language/ast"
 )
 
 func TestOperationDefinition(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/IodeSystems/graphql-go"
+	"github.com/IodeSystems/graphql-go/v2"
 )
 
 func appendTestSchema(t testing.TB) graphql.Schema {

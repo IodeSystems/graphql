@@ -3,7 +3,7 @@ package graphql_test
 import (
 	"testing"
 
-	"github.com/IodeSystems/graphql-go"
+	"github.com/IodeSystems/graphql-go/v2"
 )
 
 // DefaultResolveFn resolves fields promoted from embedded structs, using

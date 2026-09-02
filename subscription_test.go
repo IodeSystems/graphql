@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/IodeSystems/graphql-go"
-	"github.com/IodeSystems/graphql-go/testutil"
+	"github.com/IodeSystems/graphql-go/v2"
+	"github.com/IodeSystems/graphql-go/v2/testutil"
 )
 
 func TestSchemaSubscribe(t *testing.T) {

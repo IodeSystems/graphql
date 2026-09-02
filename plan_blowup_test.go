@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/IodeSystems/graphql-go/language/ast"
-	"github.com/IodeSystems/graphql-go/language/parser"
+	"github.com/IodeSystems/graphql-go/v2/language/ast"
+	"github.com/IodeSystems/graphql-go/v2/language/parser"
 )
 
 func parseQuery(t testing.TB, query string) *ast.Document {

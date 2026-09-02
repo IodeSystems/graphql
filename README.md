@@ -1,4 +1,4 @@
-# graphql-go [![Go Reference](https://pkg.go.dev/badge/github.com/IodeSystems/graphql-go.svg)](https://pkg.go.dev/github.com/IodeSystems/graphql-go)
+# graphql-go [![Go Reference](https://pkg.go.dev/badge/github.com/IodeSystems/graphql-go/v2.svg)](https://pkg.go.dev/github.com/IodeSystems/graphql-go/v2)
 
 An implementation of GraphQL in Go. Follows the official reference implementation [`graphql-js`](https://github.com/graphql/graphql-js).
 
@@ -35,7 +35,7 @@ Two further differences need no opt-in and should only ever return more data, ne
 
 ### Documentation
 
-godoc: https://pkg.go.dev/github.com/IodeSystems/graphql-go
+godoc: https://pkg.go.dev/github.com/IodeSystems/graphql-go/v2
 
 ### Performance
 
@@ -310,7 +310,7 @@ Friendly reminder links are available in case you would like to contribute back 
 
 To install the library, run:
 ```bash
-go get github.com/IodeSystems/graphql-go
+go get github.com/IodeSystems/graphql-go/v2
 ```
 
 The following is a simple example which defines a schema with a single `hello` string-type field and a `Resolve` method which returns the string `world`. A GraphQL query is performed against this schema with the resulting output printed in JSON format.
@@ -323,7 +323,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/IodeSystems/graphql-go"
+	"github.com/IodeSystems/graphql-go/v2"
 )
 
 func main() {

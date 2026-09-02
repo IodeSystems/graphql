@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/IodeSystems/graphql-go/language/source"
+	"github.com/IodeSystems/graphql-go/v2/language/source"
 )
 
 func TestParseValue_Float(t *testing.T) {

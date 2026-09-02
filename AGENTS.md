@@ -18,7 +18,7 @@ No linter, formatter, build step, or codegen. `go fmt` and `go vet` are the only
 
 ## Package Layout
 
-- **Root (`github.com/IodeSystems/graphql-go`)** — the library. Entry points: `graphql.Do(params)` (convenience), `graphql.PlanQuery()` + `graphql.ExecutePlan()` (cached), `graphql.ExecutePlanAppend()` (zero-allocation JSON). Schema types, executor, planner, validator, scalars, values, extensions.
+- **Root (`github.com/IodeSystems/graphql-go/v2`)** — the library. Entry points: `graphql.Do(params)` (convenience), `graphql.PlanQuery()` + `graphql.ExecutePlan()` (cached), `graphql.ExecutePlanAppend()` (zero-allocation JSON). Schema types, executor, planner, validator, scalars, values, extensions.
 - **`language/`** — parser, lexer, AST, printer, visitor, source, kinds, location, typeInfo. Mirrors `graphql-js` language layer.
 - **`gqlerrors/`** — error types and formatting.
 - **`testutil/`** — test helpers only (StarWarsSchema, rule harness). Not part of the public API.

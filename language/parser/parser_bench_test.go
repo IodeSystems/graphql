@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/IodeSystems/graphql-go/language/source"
+	"github.com/IodeSystems/graphql-go/v2/language/source"
 )
 
 func buildWideQuery(nFields int) string {

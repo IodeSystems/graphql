@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/IodeSystems/graphql-go"
+	"github.com/IodeSystems/graphql-go/v2"
 )
 
 // thunkSchema builds n fields whose resolvers each start a goroutine

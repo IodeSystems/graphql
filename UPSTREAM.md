@@ -57,7 +57,7 @@ never taken.
 
 ## Fork divergence (what makes cherry-picks conflict)
 
-- Import paths: `github.com/graphql-go/graphql` → `github.com/IodeSystems/graphql-go`.
+- Import paths: `github.com/graphql-go/graphql` → `github.com/IodeSystems/graphql-go/v2`.
   Every upstream commit touching an import block conflicts on this alone.
 - `plan.go` / `executor.go` carry the append-mode pipeline (`PlanQuery`,
   `ExecutePlan`, `ExecutePlanAppend`, `ResolveAppend`). See `docs/plan.md`.

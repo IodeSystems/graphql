@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/IodeSystems/graphql-go/language/kinds"
+	"github.com/IodeSystems/graphql-go/v2/language/kinds"
 )
 
 type Selection interface {

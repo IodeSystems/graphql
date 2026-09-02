@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/IodeSystems/graphql-go"
-	"github.com/IodeSystems/graphql-go/language/parser"
-	"github.com/IodeSystems/graphql-go/language/source"
+	"github.com/IodeSystems/graphql-go/v2"
+	"github.com/IodeSystems/graphql-go/v2/language/parser"
+	"github.com/IodeSystems/graphql-go/v2/language/source"
 )
 
 // runParity runs both ExecutePlan and ExecutePlanAppend and asserts

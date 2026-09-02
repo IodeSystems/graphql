@@ -3,10 +3,10 @@ package graphql_test
 import (
 	"testing"
 
-	"github.com/IodeSystems/graphql-go"
-	"github.com/IodeSystems/graphql-go/gqlerrors"
-	"github.com/IodeSystems/graphql-go/language/location"
-	"github.com/IodeSystems/graphql-go/testutil"
+	"github.com/IodeSystems/graphql-go/v2"
+	"github.com/IodeSystems/graphql-go/v2/gqlerrors"
+	"github.com/IodeSystems/graphql-go/v2/language/location"
+	"github.com/IodeSystems/graphql-go/v2/testutil"
 )
 
 func g(t *testing.T, p graphql.Params) *graphql.Result {

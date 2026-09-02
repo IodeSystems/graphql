@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/IodeSystems/graphql-go/language/source"
+	"github.com/IodeSystems/graphql-go/v2/language/source"
 )
 
 func makeTestParser(t *testing.T, src string) *Parser {

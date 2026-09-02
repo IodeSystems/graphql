@@ -5,9 +5,9 @@ import (
 	"io"
 	"sync"
 
-	"github.com/IodeSystems/graphql-go/gqlerrors"
-	"github.com/IodeSystems/graphql-go/language/parser"
-	"github.com/IodeSystems/graphql-go/language/source"
+	"github.com/IodeSystems/graphql-go/v2/gqlerrors"
+	"github.com/IodeSystems/graphql-go/v2/language/parser"
+	"github.com/IodeSystems/graphql-go/v2/language/source"
 )
 
 // responseBufPool backs DoWriter. Append-mode's speed comes from

@@ -61,7 +61,7 @@ $ git remote add upstream git@github.com:graphql-go/graphql.git
 ```
 
 This is the IodeSystems fork; the module path is
-`github.com/IodeSystems/graphql-go`, and the `upstream` remote points at
+`github.com/IodeSystems/graphql-go/v2`, and the `upstream` remote points at
 `graphql-go/graphql`. See `UPSTREAM.md` for how changes are synced between
 the two.
 
