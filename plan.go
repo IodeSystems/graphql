@@ -50,6 +50,21 @@ type Plan struct {
 type selectionPlan struct {
 	parentType *Object
 	fields     []*fieldPlan
+
+	// keysOnce guards the lazy build of every field's responseKeyJSON.
+	// Those bytes are read only by the append-mode walkers, so building
+	// them at plan time charged ExecutePlan and Do callers for a
+	// feature they never touch. Plans are cached and shared across
+	// concurrent requests, hence Once rather than a plain nil check.
+	keysOnce sync.Once
+}
+
+// ensureResponseKeys builds the response-key JSON for this selection
+// set if it has not been built yet. Called from the append walker on
+// entry to a selection set; the map-tree walker never calls it, and so
+// never pays for it.
+func (sp *selectionPlan) ensureResponseKeys() {
+	sp.keysOnce.Do(func() { fillResponseKeyJSON(sp) })
 }
 
 // fieldPlan is one entry in a selectionPlan: enough to resolve, run,
@@ -218,7 +233,6 @@ func (p *Plan) planSelectionSet(parentType *Object, selectionSet *ast.SelectionS
 	if len(sp.fields) == 0 {
 		return nil
 	}
-	fillResponseKeyJSON(sp)
 	// Phase 2: plan sub-selections for each merged field group.
 	for _, fp := range sp.fields {
 		if fp.fieldDef == nil {
@@ -287,7 +301,6 @@ func (p *Plan) planMergedSelectionsForType(parentType *Object, fieldASTs []*ast.
 	if len(sp.fields) == 0 {
 		return nil
 	}
-	fillResponseKeyJSON(sp)
 	for _, fp := range sp.fields {
 		if fp.fieldDef == nil {
 			continue

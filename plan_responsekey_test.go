@@ -94,3 +94,50 @@ func TestFillResponseKeyJSONManyFields(t *testing.T) {
 		}
 	}
 }
+
+// Response-key bytes are built on first append-mode use, and plans are
+// cached and shared, so the build can be raced by concurrent requests
+// against the same *Plan. Run under -race.
+func TestResponseKeysLazyBuildIsRaceFree(t *testing.T) {
+	sp := &selectionPlan{}
+	keys := []string{"a", "bb", "ccc", `q"uote`, "日本語"}
+	for _, k := range keys {
+		sp.fields = append(sp.fields, &fieldPlan{responseKey: k})
+	}
+
+	const goroutines = 32
+	start := make(chan struct{})
+	done := make(chan []string, goroutines)
+	for g := 0; g < goroutines; g++ {
+		go func() {
+			<-start
+			sp.ensureResponseKeys()
+			out := make([]string, len(sp.fields))
+			for i, fp := range sp.fields {
+				out[i] = string(fp.responseKeyJSON)
+			}
+			done <- out
+		}()
+	}
+	close(start)
+
+	var want []string
+	for g := 0; g < goroutines; g++ {
+		got := <-done
+		if want == nil {
+			want = got
+			continue
+		}
+		for i := range got {
+			if got[i] != want[i] {
+				t.Fatalf("goroutine disagreement at %d: %q vs %q", i, got[i], want[i])
+			}
+		}
+	}
+	for i, k := range keys {
+		expect := string(append(appendJSONString(nil, k), ':'))
+		if want[i] != expect {
+			t.Errorf("field %d: got %q, want %q", i, want[i], expect)
+		}
+	}
+}

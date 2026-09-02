@@ -60,6 +60,9 @@ func writePlannedSelection(eCtx *executionContext, sp *selectionPlan, source int
 	if source == nil {
 		source = map[string]interface{}{}
 	}
+	// Response-key bytes are built on first append-mode use of this
+	// selection set, not at plan time — see selectionPlan.keysOnce.
+	sp.ensureResponseKeys()
 
 	pp := acquirePending(len(sp.fields))
 	defer func() {
