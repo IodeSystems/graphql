@@ -61,9 +61,9 @@ func benchParse(b *testing.B, body string) {
 
 func BenchmarkParse_Tiny(b *testing.B) { benchParse(b, tinyQuery) }
 
-func BenchmarkParse_Wide_100(b *testing.B)  { benchParse(b, buildWideQuery(100)) }
-func BenchmarkParse_Wide_1K(b *testing.B)   { benchParse(b, buildWideQuery(1000)) }
-func BenchmarkParse_Wide_10K(b *testing.B)  { benchParse(b, buildWideQuery(10000)) }
+func BenchmarkParse_Wide_100(b *testing.B) { benchParse(b, buildWideQuery(100)) }
+func BenchmarkParse_Wide_1K(b *testing.B)  { benchParse(b, buildWideQuery(1000)) }
+func BenchmarkParse_Wide_10K(b *testing.B) { benchParse(b, buildWideQuery(10000)) }
 
 func BenchmarkParse_Deep_10(b *testing.B)  { benchParse(b, buildDeepQuery(10)) }
 func BenchmarkParse_Deep_100(b *testing.B) { benchParse(b, buildDeepQuery(100)) }

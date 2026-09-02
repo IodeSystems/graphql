@@ -295,9 +295,9 @@ func TestPrintDocASTReducer_OperationDefinition(t *testing.T) {
 	})
 	action2, val2 := fn(visitor.VisitFuncParams{
 		Node: ast.NewOperationDefinition(&ast.OperationDefinition{
-			Operation:     ast.OperationTypeMutation,
-			Name:          ast.NewName(&ast.Name{Value: "myMutation"}),
-			SelectionSet:  selSet,
+			Operation:    ast.OperationTypeMutation,
+			Name:         ast.NewName(&ast.Name{Value: "myMutation"}),
+			SelectionSet: selSet,
 		}),
 	})
 	if action2 != visitor.ActionUpdate {
@@ -459,7 +459,7 @@ func TestPrintDocASTReducer_FragmentDefinition(t *testing.T) {
 	// *ast.FragmentDefinition path
 	action, val := fn(visitor.VisitFuncParams{
 		Node: ast.NewFragmentDefinition(&ast.FragmentDefinition{
-			Name: ast.NewName(&ast.Name{Value: "myFrag"}),
+			Name:          ast.NewName(&ast.Name{Value: "myFrag"}),
 			TypeCondition: ast.NewNamed(&ast.Named{Name: ast.NewName(&ast.Name{Value: "User"})}),
 			SelectionSet: ast.NewSelectionSet(&ast.SelectionSet{
 				Selections: []ast.Selection{

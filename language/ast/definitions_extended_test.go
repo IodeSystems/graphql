@@ -57,11 +57,11 @@ func TestFragmentDefinition(t *testing.T) {
 	selSet := &ast.SelectionSet{Selections: []ast.Selection{selection}}
 
 	def := ast.NewFragmentDefinition(&ast.FragmentDefinition{
-		Loc:          loc,
-		Name:         name,
+		Loc:           loc,
+		Name:          name,
 		TypeCondition: typeCond,
-		Directives:   []*ast.Directive{directive},
-		SelectionSet: selSet,
+		Directives:    []*ast.Directive{directive},
+		SelectionSet:  selSet,
 	})
 	if def.GetKind() != "FragmentDefinition" {
 		t.Fatalf("expected FragmentDefinition, got %s", def.GetKind())

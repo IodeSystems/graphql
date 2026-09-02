@@ -76,8 +76,8 @@ func normalizeDocument(schema *Schema, doc *ast.Document, operationName string) 
 	}
 
 	ctx := &normCtx{
-		schema:    schema,
-		synthArgs: map[string]interface{}{},
+		schema:     schema,
+		synthArgs:  map[string]interface{}{},
 		newVarDefs: nil,
 	}
 

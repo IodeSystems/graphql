@@ -15,12 +15,12 @@ import (
 // PlanCache is a bounded, schema-aware LRU of parsed + validated +
 // planned query state. Drop-in: a server's hot loop becomes
 //
-//   pr := cache.Get(schema, queryString, opName)
-//   if len(pr.Errors) > 0 { return errorResponse(pr.Errors) }
-//   args := mergeArgs(requestArgs, pr.SynthArgs)
-//   result := graphql.ExecutePlan(pr.Plan, graphql.ExecuteParams{
-//       Schema: *schema, Args: args, Context: ctx,
-//   })
+//	pr := cache.Get(schema, queryString, opName)
+//	if len(pr.Errors) > 0 { return errorResponse(pr.Errors) }
+//	args := mergeArgs(requestArgs, pr.SynthArgs)
+//	result := graphql.ExecutePlan(pr.Plan, graphql.ExecuteParams{
+//	    Schema: *schema, Args: args, Context: ctx,
+//	})
 //
 // Each entry holds the *Plan plus any validation errors that arose
 // at parse/validate/plan time. Entries are bound to the *Schema

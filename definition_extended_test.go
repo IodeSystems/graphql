@@ -607,7 +607,7 @@ func TestUnionTypes_Nil(t *testing.T) {
 
 func TestDefineUnionTypes_WithResolveType(t *testing.T) {
 	obj := graphql.NewObject(graphql.ObjectConfig{
-		Name:    "SomeObject",
+		Name:     "SomeObject",
 		IsTypeOf: func(p graphql.IsTypeOfParams) bool { return true },
 	})
 	u := graphql.NewUnion(graphql.UnionConfig{
@@ -858,7 +858,7 @@ func TestInputObjectDefineFieldMap_FieldTypeNil(t *testing.T) {
 
 func TestInputObjectDefineFieldMap_EmptyFieldMap(t *testing.T) {
 	io := graphql.NewInputObject(graphql.InputObjectConfig{
-		Name: "TestInput",
+		Name:   "TestInput",
 		Fields: graphql.InputObjectConfigFieldMap{},
 	})
 	io.Fields()
@@ -1022,9 +1022,9 @@ func TestNonNullNewNonNull_WrapsNonNull(t *testing.T) {
 
 func TestScalarParseValue_WithParseValueFn(t *testing.T) {
 	scalar := graphql.NewScalar(graphql.ScalarConfig{
-		Name:       "Custom",
-		Serialize:  func(v interface{}) interface{} { return v },
-		ParseValue: func(v interface{}) interface{} { return "parsed:" + v.(string) },
+		Name:         "Custom",
+		Serialize:    func(v interface{}) interface{} { return v },
+		ParseValue:   func(v interface{}) interface{} { return "parsed:" + v.(string) },
 		ParseLiteral: func(v ast.Value) interface{} { return nil },
 	})
 	result := scalar.ParseValue("hello")

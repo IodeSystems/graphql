@@ -1395,4 +1395,3 @@ func assertValidName(name string) error {
 		`Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%v" does not.`, name)
 
 }
-

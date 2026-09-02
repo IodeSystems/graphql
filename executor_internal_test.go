@@ -14,9 +14,9 @@ type customUnknownASTType struct {
 	kind string
 }
 
-func (t *customUnknownASTType) GetKind() string { return t.kind }
+func (t *customUnknownASTType) GetKind() string       { return t.kind }
 func (t *customUnknownASTType) GetLoc() *ast.Location { return nil }
-func (t *customUnknownASTType) String() string { return t.kind }
+func (t *customUnknownASTType) String() string        { return t.kind }
 
 var _ ast.Type = (*customUnknownASTType)(nil)
 
@@ -380,7 +380,7 @@ func TestDoesFragmentConditionMatch_FragmentDefinitionInterface(t *testing.T) {
 		},
 	})
 	human := NewObject(ObjectConfig{
-		Name: "Human",
+		Name:       "Human",
 		Interfaces: []*Interface{iface},
 		Fields: Fields{
 			"name": &Field{Type: String},
@@ -533,7 +533,7 @@ func TestDoesFragmentConditionMatch_InlineFragmentInterface(t *testing.T) {
 		},
 	})
 	human := NewObject(ObjectConfig{
-		Name: "Human",
+		Name:       "Human",
 		Interfaces: []*Interface{iface},
 		Fields: Fields{
 			"name": &Field{Type: String},

@@ -332,10 +332,10 @@ func TestCollectFields_InlineFragmentOnInterface(t *testing.T) {
 		Name:       "Human",
 		Interfaces: []*graphql.Interface{charInterface},
 		Fields: graphql.Fields{
-			"id":        &graphql.Field{Type: graphql.String},
-			"name":      &graphql.Field{Type: graphql.String},
+			"id":         &graphql.Field{Type: graphql.String},
+			"name":       &graphql.Field{Type: graphql.String},
 			"homePlanet": &graphql.Field{Type: graphql.String},
-			"friends":   &graphql.Field{Type: graphql.NewList(charInterface)},
+			"friends":    &graphql.Field{Type: graphql.NewList(charInterface)},
 		},
 		IsTypeOf: func(p graphql.IsTypeOfParams) bool {
 			_, ok := p.Value.(map[string]interface{})
@@ -500,9 +500,9 @@ func TestShouldIncludeNode_SkipAndInclude(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := graphql.Do(graphql.Params{
-				Schema:       schema,
+				Schema:        schema,
 				RequestString: tt.query,
-				RootObject:   source,
+				RootObject:    source,
 			})
 			if len(result.Errors) > 0 {
 				t.Fatalf("unexpected errors: %v", result.Errors)
@@ -716,7 +716,7 @@ func TestDoesFragmentConditionMatch_FragmentSpreadOnUnion(t *testing.T) {
 		},
 	})
 	searchResult := graphql.NewUnion(graphql.UnionConfig{
-		Name: "SearchResult",
+		Name:  "SearchResult",
 		Types: []*graphql.Object{humanType},
 		ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
 			return humanType
@@ -794,7 +794,7 @@ func TestDefaultResolveTypeFn_NoMatch(t *testing.T) {
 		},
 	})
 	graphql.NewObject(graphql.ObjectConfig{
-		Name: "Human",
+		Name:       "Human",
 		Interfaces: []*graphql.Interface{charInterface},
 		Fields: graphql.Fields{
 			"name": &graphql.Field{Type: graphql.String},
@@ -849,9 +849,9 @@ func TestDefaultResolveFn_ReflectMapWithFunc(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := graphql.Do(graphql.Params{
-		Schema:       schema,
+		Schema:        schema,
 		RequestString: `{ greeting }`,
-		RootObject:   map[string]interface{}(source),
+		RootObject:    map[string]interface{}(source),
 	})
 	if len(result.Errors) > 0 {
 		t.Fatalf("unexpected errors: %v", result.Errors)
@@ -1266,7 +1266,7 @@ func TestCompletePlannedAbstractValue_NotPossibleType(t *testing.T) {
 		},
 	})
 	graphql.NewObject(graphql.ObjectConfig{
-		Name: "Human",
+		Name:       "Human",
 		Interfaces: []*graphql.Interface{charInterface},
 		Fields: graphql.Fields{
 			"name": &graphql.Field{Type: graphql.String},
@@ -2044,7 +2044,7 @@ func TestDefaultResolveTypeFn_NoIsTypeOf(t *testing.T) {
 		},
 	})
 	humanType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Human",
+		Name:       "Human",
 		Interfaces: []*graphql.Interface{charInterface},
 		Fields: graphql.Fields{
 			"name": &graphql.Field{Type: graphql.String},
@@ -2052,7 +2052,7 @@ func TestDefaultResolveTypeFn_NoIsTypeOf(t *testing.T) {
 		// No IsTypeOf – the continue at line 445-446 skips this type
 	})
 	droidType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Droid",
+		Name:       "Droid",
 		Interfaces: []*graphql.Interface{charInterface},
 		Fields: graphql.Fields{
 			"name": &graphql.Field{Type: graphql.String},
@@ -2115,7 +2115,7 @@ func TestDethunkMapDepthFirst_WithFuncThunk(t *testing.T) {
 		},
 	})
 	queryType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Query",
+		Name:   "Query",
 		Fields: graphql.Fields{"_": &graphql.Field{Type: graphql.String}},
 	})
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2160,7 +2160,7 @@ func TestDethunkListDepthFirst_WithFuncThunk(t *testing.T) {
 		},
 	})
 	queryType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Query",
+		Name:   "Query",
 		Fields: graphql.Fields{"_": &graphql.Field{Type: graphql.String}},
 	})
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2201,7 +2201,7 @@ func TestDethunkListDepthFirst_NestedStringList(t *testing.T) {
 		},
 	})
 	queryType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Query",
+		Name:   "Query",
 		Fields: graphql.Fields{"_": &graphql.Field{Type: graphql.String}},
 	})
 	schema, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2444,7 +2444,7 @@ func TestSubscription_DoesFragmentConditionMatch_Interface(t *testing.T) {
 		},
 	})
 	human := graphql.NewObject(graphql.ObjectConfig{
-		Name: "Human",
+		Name:       "Human",
 		Interfaces: []*graphql.Interface{charInterface},
 		Fields: graphql.Fields{
 			"name": &graphql.Field{Type: graphql.String},
@@ -2496,7 +2496,7 @@ func TestSubscription_DoesFragmentConditionMatch_Union(t *testing.T) {
 		},
 	})
 	searchUnion := graphql.NewUnion(graphql.UnionConfig{
-		Name: "Search",
+		Name:  "Search",
 		Types: []*graphql.Object{resultType},
 	})
 	s, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2541,7 +2541,7 @@ func TestSubscription_DoesFragmentConditionMatch_InlineFragmentInterfaceAtRoot(t
 	// Root-level inline fragment with Interface type condition exercises
 	// InlineFragment Interface branch (lines 398-400).
 	charInterface := graphql.NewInterface(graphql.InterfaceConfig{
-		Name: "Character",
+		Name:   "Character",
 		Fields: graphql.Fields{"name": &graphql.Field{Type: graphql.String}},
 	})
 	s, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2569,7 +2569,7 @@ func TestSubscription_DoesFragmentConditionMatch_InlineFragmentUnionAtRoot(t *te
 	// Root-level inline fragment with Union type condition exercises
 	// InlineFragment Union branch (lines 401-403).
 	searchUnion := graphql.NewUnion(graphql.UnionConfig{
-		Name: "Search",
+		Name:  "Search",
 		Types: []*graphql.Object{},
 	})
 	s, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2596,7 +2596,7 @@ func TestSubscription_DoesFragmentConditionMatch_FragmentSpreadInterfaceAtRoot(t
 	// Root-level fragment spread with Interface type condition exercises
 	// FragmentDefinition Interface branch (lines 377-379).
 	charInterface := graphql.NewInterface(graphql.InterfaceConfig{
-		Name: "Character",
+		Name:   "Character",
 		Fields: graphql.Fields{"name": &graphql.Field{Type: graphql.String}},
 	})
 	s, err := graphql.NewSchema(graphql.SchemaConfig{
@@ -2699,7 +2699,7 @@ func TestSubscription_UnknownDefinitionType(t *testing.T) {
 		},
 	})
 	c := graphql.Subscribe(graphql.Params{
-		Schema:        s,
+		Schema: s,
 		RequestString: `subscription { sub }
 type Foo { bar: String }`,
 	})
